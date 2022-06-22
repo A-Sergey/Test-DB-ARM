@@ -3,13 +3,12 @@ from TEST_BD_ARM.main import Objects
 
 class WindowDiagArm(Objects):
 
-    def feu_objs():
+    def get_feu_objs():
         with open(Objects.objPath[:Objects.objPath.rfind('site')]+'site\\ipu1\\feu_objects.xml', encoding='utf-8') as FO:
             return [Objects.val(_, 'name', end = ' ob')[1:-1] for _ in FO if '<obj objnum' in _]
 
     def window_diag_arm():
         window ,= [(x['Coordinates'],x['RightBottom']) for x in Objects('SubType=Экран','Coordinates','RightBottom').VarsObjs if 'Диагностика АРМов и серверов, схема локальной сети' in x['Name']]
-        print('>>>>>>>>>',window)
         return window
         
     def set_dict_objs(self):
@@ -109,7 +108,7 @@ def test_correct_linked_servers(var):
 @pytest.mark.parametrize('var', cpu.VarsObjs)
 def test_correct_linked_cpu(var):
     try:
-        list_feu_objs = WindowDiagArm.feu_objs()
+        list_feu_objs = WindowDiagArm.get_feu_objs()
         list_feu_objs.remove(var['side_1'])
         list_feu_objs.remove(var['side_2'])
         list_feu_objs.remove(var['tsap_1'])

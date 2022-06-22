@@ -63,8 +63,8 @@ class Objects():
 
     def set_dict_objs(self):
         with open(Objects.get_stnPath(), encoding='utf-8') as stn:
-            stn = stn.read().split('create universal')
-            for obj in stn:
+            #stn = stn.read().split('create universal')
+            for obj in stn.read().split('create universal'):
                 dictVarsObj = dict()
                 if self.typeObj in obj:
                     self.add_dict_vars_obj(dictVarsObj,obj, 'Name')
@@ -75,8 +75,8 @@ class Objects():
 if __name__ == "__main__":
     if 'objects.xml' in argv[1]:
         os.environ.update({'pathObj':argv[1]})
-    testPath = argv[0][:argv[0].rfind('main')]+ 'test'#\\test_OC.py'#::test_link_ups'
-    proc = subprocess.run(['pytest','-v','--tb=short', testPath], stdin = subprocess.PIPE,
+    testPath = argv[0][:argv[0].rfind('main')]+ 'test\\test_window_CPU.py'#::test_link_ups'
+    proc = subprocess.run(['pytest','-vv','-l','--tb=short', testPath], stdin = subprocess.PIPE,
                          stdout = subprocess.PIPE, text= True)
     print(proc.stdout)
     input('\nPress Enter for exit')
