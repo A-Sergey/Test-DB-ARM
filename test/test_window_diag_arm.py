@@ -18,6 +18,7 @@ class WindowDiagArm(Objects):
                 dictVarsObj = dict()
                 if self.typeObj in obj:
                     self.add_dict_vars_obj(dictVarsObj,obj, 'Name')
+                    self.add_dict_vars_obj(dictVarsObj,obj, 'Ident')
                     for var in self.varsObj:
                         self.add_dict_vars_obj(dictVarsObj,obj, var)
                     if int(dictVarsObj['Coordinates'][0]) < int(WindowDiagArm.window_diag_arm()[0][0]) or int(dictVarsObj['Coordinates'][1]) < int(WindowDiagArm.window_diag_arm()[0][1]):
@@ -55,11 +56,12 @@ class WindowDiagArm(Objects):
                 _['count'] = count
                 count += 1
                 yield _
+                
         
         
 
-diag_sys_unit = Objects('SubType=Диагностика_системных_блоков','MainEbilockObject', 'Ident')
-select_client = Objects('SubType=Выбор клиента','MainEbilockObject', 'таблица', 'IsServer')
+diag_sys_unit = Objects('SubType=Диагностика_системных_блоков','MainEbilockObject',)
+select_client = Objects('SubType=Выбор клиента','MainEbilockObject', 'таблица', 'IsServer',)
 list_work_places = Objects('SubType=Список_рабочих_мест','MainEbilockObject', 'client', 'server')
 servers = WindowDiagArm('SubType=Сервер','MainEbilockObject','Coordinates')
 cpu = WindowDiagArm('SubType=cpu','MainEbilockObject','Coordinates','side_1','side_2','tsap_1','tsap_2')
@@ -74,12 +76,12 @@ def test_correct_diag_sys_unit():
     out = f"Не верно привязан {diag_sys_unit.typeObj}"
     assert diag_sys_unit.VarsObjs[0]['MainEbilockObject'] == 'СервОСН', out
 
-@pytest.mark.parametrize('var', select_client.VarsObjs)
+@pytest.mark.parametrize('var', select_client.VarsObjs,ids=select_client.get_ids())
 def test_correct_link_select_client(var):
     out = f"Не верный link {var['Name']}"
     assert var['таблица'] == diag_sys_unit.VarsObjs[0]['Ident'],out
 
-@pytest.mark.parametrize('var', select_client.VarsObjs)
+@pytest.mark.parametrize('var', select_client.VarsObjs,ids=select_client.get_ids())
 def test_is_server_of_select_client(var):
     out = f"Не верный параметр isServer {var['Name']}"
     if 'Серв' in var['Name']:
@@ -93,7 +95,7 @@ def test_correct_linked_list_work_places():
     assert list_work_places.VarsObjs[0]['client'] in clients, 'Не верно client'
     assert list_work_places.VarsObjs[0]['server'] == 'СервОСН', 'Не верно server'
 
-@pytest.mark.parametrize('var', select_client.VarsObjs)
+@pytest.mark.parametrize('var', select_client.VarsObjs,ids=select_client.get_ids())
 def test_is_server_of_select_client(var):
     out = f"Не верный параметр isServer {var['Name']}"
     if 'Серв' in var['Name']:
@@ -101,11 +103,11 @@ def test_is_server_of_select_client(var):
     else:
         assert var['IsServer'] == '0',out
 
-@pytest.mark.parametrize('var', servers.VarsObjs)
+@pytest.mark.parametrize('var', servers.VarsObjs,ids=servers.get_ids())
 def test_correct_linked_servers(var):
     assert var['MainEbilockObject'] == var['Name']
 
-@pytest.mark.parametrize('var', cpu.VarsObjs)
+@pytest.mark.parametrize('var', cpu.VarsObjs,ids=cpu.get_ids())
 def test_correct_linked_cpu(var):
     try:
         list_feu_objs = WindowDiagArm.get_feu_objs()
@@ -117,12 +119,16 @@ def test_correct_linked_cpu(var):
         assert False, 'Проверить привязку cpu'
     assert var['MainEbilockObject'] == cpu.get_name_cpu()
 
-@pytest.mark.parametrize('var', conn_between_servers.VarsObjs)
+@pytest.mark.parametrize('var', conn_between_servers.VarsObjs,
+                        ids=conn_between_servers.get_ids())
 def test_correct_linked_conn_between_servers(var):
     assert var['From'] == 'СервОСН'
     assert var['To'] == 'СервРЕЗ'
 
-@pytest.mark.parametrize('var', conn_between_cpu_servers.sorted_by_X())
+@pytest.mark.parametrize('var', conn_between_cpu_servers.sorted_by_X(),
+                        ids=map(lambda x: x['Ident'],
+                                conn_between_cpu_servers.sorted_by_X())
+                        )
 def test_correct_linked_conn_between_cpu_servers(var):
     if var['count'] < 3:
         assert var['From'] == conn_between_cpu_servers.get_name_cpu() and var['To'] == 'СервОСН'
@@ -133,7 +139,7 @@ def test_correct_linked_conn_between_cpu_servers(var):
 def test_correct_linked_conn_between_client_servers_from(var):
     for obj in conn_between_client_servers.get_sorted_by_X('From',var):
         assert obj['From'] == var, f"Не правильная привязка From {var}"
-        assert obj['From'] == obj['MainEbilockObject'] and obj['From'] == obj['Name'], f"Проверь имя или MainEbilockObject {var}"
+        assert '-1' == obj['MainEbilockObject'] and obj['From'].upper() == obj['Name'].upper(), f"Проверь имя или MainEbilockObject {var}"
 
 @pytest.mark.parametrize('var', clients)
 def test_correct_linked_conn_between_client_servers_ServerNum(var):

@@ -20,7 +20,6 @@ class Input(Objects):
                     name = line[line.find('name=')+6:line.find('"',line.find('name=')+7)]
                     objtype = line[line.find('objtype=')+9:line.find('"',line.find('objtype=')+10)]
                     Input.dic_objs[name]=Input.alarm(objtype, Input.objPath)
-                    #print('<><><><><><><><>',name, Input.dic_objs[name])
             return(Input.dic_objs)
         
     @classmethod
@@ -38,15 +37,14 @@ class Input(Objects):
             if __screens == (): raise('Нет экрана релейных входов')
             return(__screens)
 
-    def get_obj_id(self,tmp):
-        return([f'{tmp} ID={dic["Ident"]}' for dic in self.VarsObjs if dic['Ident'] != None])
-
-contact = Input('SubType=Контакт\n','MainEbilockObject','Ident','Coordinates','Center',
+contact = Input('SubType=Контакт\n','MainEbilockObject','Coordinates','Center',
                 'alarm_button','ttable','Аларм',)
-user_mark = Input('SubType=Пользовательская_разметка\n','MainEbilockObject','Ident',
+user_mark = Input('SubType=Пользовательская_разметка\n','MainEbilockObject',
                    'Coordinates','LeftUp','RightDown')
-time_table = Input('SubType=Таблица_времен\n','MainEbilockObject','Ident','Coordinates',
+time_table = Input('SubType=Таблица_времен\n','MainEbilockObject','Coordinates',
                     'Сосед',)
+                    
+absent_diag_contact = False if user_mark.VarsObjs else True
 
 def test_absence_old_realisation():
     out = f"Старая реализация команд на релейных входах"
@@ -54,12 +52,13 @@ def test_absence_old_realisation():
     assert ('Убрать_аларм' not in commAlarm and 'Аларм_' not in commAlarm), out
 
 
-@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_obj_id('Contact'))
+@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_ids())
 def test_correct_name_with_linked(var):
     out = f"Не верная привязка контакта {var['Name']}"
     assert (var['Name'] == var['MainEbilockObject'] or var['Name']+'_' in var['MainEbilockObject']), out
-    
-@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_obj_id('Contact'))
+
+@pytest.mark.skipif(absent_diag_contact == True, reason='Absent diag contact')
+@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_ids())
 def test_correct_linked_table_alarm_button(var):
     out = f"{var['Name']} Необходимо проверить link alarm_button"
     __rel_status_ident = ()
@@ -71,7 +70,8 @@ def test_correct_linked_table_alarm_button(var):
         if int(var['Center']) > r_s[1] and int(var['Center']) < r_s[2]:
             assert var['alarm_button'] == r_s[0], out
 
-@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_obj_id('Contact'))
+@pytest.mark.skipif(absent_diag_contact == True, reason='Absent diag contact')
+@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_ids())
 def test_correct_linked_table_ttable(var):
     out = f"{var['Name']} Необходимо проверить link ttable"
     __table = [[],[]]
@@ -82,7 +82,7 @@ def test_correct_linked_table_ttable(var):
     __table_time_ident = list(set(__table[0]) - set(__table[1]))[0]
     assert var['ttable'] == __table_time_ident, out
 
-@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_obj_id('Contact'))
+@pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_ids())
 def test_correct_alarm_stn_objs(var):
    out = f"{var['Name']} не соответствуют алармы"
    try:

@@ -14,9 +14,9 @@ class Point(Objects):
 points = Point('SubType=Стрелка\n','MainEbilockObject','Контроллер','Номер_платы_МУЭП',
                 'Макет',)
 pointSwitches = Point('SubType=Стрелочный_коммутатор','MainEbilockObject','OC',
-                'Спаренная_стрелка')
+                'Спаренная_стрелка',)
 
-@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_obj_id())
+@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_ids())
 def test_correct_linked_controller(var):
     out = 'К стрелке ' + var['Name'] + ' не верно привязан контроллер'
     if ('-1' not in var.get('MainEbilockObject')):
@@ -27,7 +27,7 @@ def test_correct_linked_controller(var):
             assert (var['Name']+'/' in var['Контроллер']
                     or '/'+var['Name'] in var['Контроллер']), out
 
-@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_obj_id())
+@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_ids())
 def test_correct_number_plate(var):
     out = 'На стрелке №'+var['Name']+' не правильно выставлен номер платы'
     if var['Name'] in var['Контроллер'].split('/'):
@@ -36,7 +36,7 @@ def test_correct_number_plate(var):
         elif var['Контроллер'].split('/').index(var['Name']) == 1:
             assert var['Номер_платы_МУЭП'] == '2',out
 
-@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_obj_id())
+@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_ids())
 def test_availability_of_all_point_switches(var):
     out = 'Отсутсвует стрелочный коммутатор '+ var['Name']
     count = 0
@@ -47,18 +47,18 @@ def test_availability_of_all_point_switches(var):
             if switch['MainEbilockObject'] == var['MainEbilockObject']: count = 1
     assert count == 1, out
 
-@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_obj_id())
+@pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_ids())
 def test_linked_to_maket(var):
     out = 'Стрелка №' + var['Name'] + ' не привязана к макету'
     assert var['Макет'] != '-1', out
     
-@pytest.mark.parametrize('var', pointSwitches.VarsObjs, ids=pointSwitches.get_obj_id())
+@pytest.mark.parametrize('var', pointSwitches.VarsObjs, ids=pointSwitches.get_ids())
 def test_correct_linked_point_switches(var):
     out = 'На стр. коммутаторе '+var['Name']+' не верно привязан контроллер'
     if '/' in var['Name']:
         assert 'Стр.'+var['Name']+'(' in var['OC'], out
 
-@pytest.mark.parametrize('var', pointSwitches.VarsObjs, ids=pointSwitches.get_obj_id())
+@pytest.mark.parametrize('var', pointSwitches.VarsObjs, ids=pointSwitches.get_ids())
 def test_correct_linked_point_couple_switches(var):
     out = 'На стр. коммутаторе '+var['Name']+' не верный параметр "Спаренная_стрелка"'
     if '/' in var['Name']:

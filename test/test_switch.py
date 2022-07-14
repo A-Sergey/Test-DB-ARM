@@ -1,9 +1,9 @@
 import pytest,os
 from TEST_BD_ARM.main import Objects
 
-komm = Objects('Коммутатор_ЛВС','SwitchType','Ports','Expansion')
+komm = Objects('Коммутатор_ЛВС','SwitchType','Ports','Expansion',)
 
-@pytest.mark.parametrize('pattern', komm.VarsObjs, ids=komm.get_obj_id())
+@pytest.mark.parametrize('pattern', komm.VarsObjs, ids=komm.get_ids())
 def test_correct_port(pattern):
     out = 'Не верное количество портов-'+pattern['Name']
     if pattern['SwitchType'] == '1':

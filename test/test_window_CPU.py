@@ -20,7 +20,7 @@ class WindowCPU(Objects):
         if name == 'Coordinates' or name == 'RightBottom':
             dict_[Objects.val(obj,'Name')].update({name:Objects.val(obj,name)[1:-1].split(',')})
         elif title == True:
-            dict_.update({Objects.val(obj,name):{}})
+            dict_.update({Objects.val(obj,name):{'Ident':Objects.val(obj,'Ident')}})
         else:
             dict_[Objects.val(obj,'Name')].update({name:Objects.val(obj,name)})
 
@@ -41,14 +41,11 @@ class WindowCPU(Objects):
                         continue
                     #self.VarsObjs +=(dictVarsObj,)
 
-
-
-
-
-cpu = WindowCPU('SubType=cpu','MainEbilockObject', 'Coordinates','Ident')
-diag_tables = WindowCPU('SubType=Диагностическая_таблица_ЦП','MainEbilockObject', 'Coordinates','Ident','Side2','LAN_side','Межпроцессорная_связь')
-diag_cpu = WindowCPU('SubType=Диагностика_ЦПУ-ЭЛ','MainEbilockObject', 'Coordinates','Ident','Side2','ЦП')
-table_conn_between_cpu = WindowCPU('SubType=Таблица_связей_между_ЦП','MainEbilockObject', 'Coordinates','Ident','Таблица')
+cpu = WindowCPU('SubType=cpu','MainEbilockObject', 'Coordinates',)
+diag_tables = WindowCPU('SubType=Диагностическая_таблица_ЦП','MainEbilockObject', 'Coordinates','Side2','LAN_side',
+                        'Межпроцессорная_связь',)
+diag_cpu = WindowCPU('SubType=Диагностика_ЦПУ-ЭЛ','MainEbilockObject', 'Coordinates','Side2','ЦП',)
+table_conn_between_cpu = WindowCPU('SubType=Таблица_связей_между_ЦП','MainEbilockObject', 'Coordinates','Таблица')
 
 @pytest.mark.parametrize('var', diag_tables.VarsObjs.values())
 def test_correct_linked_diag_tables(var):

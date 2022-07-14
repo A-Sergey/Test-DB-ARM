@@ -13,7 +13,7 @@ class Objects():
 
         self.set_dict_objs()
         if self.VarsObjs == ():
-            raise ValueError(f'Не найдены объекты типа {self.typeObj}')
+            print(ValueError(f'Не найдены объекты типа {self.typeObj}'))
     
     def grep(pattern,flag="-rl",add=''):
         grep = ["grep",flag]+list(pattern)+[Objects.objPath[:Objects.objPath.rfind('site')]+add]
@@ -29,7 +29,6 @@ class Objects():
         for line in objtype:
             if 'alarm' in line and 'event code="160"' not in line:
                 num = line[line.find('<event code="')+13:line.find('"',line.find('<event code="')+15)]
-            #if '</objtype>' in line:
                 break
         return(str(num))
                                     
@@ -46,8 +45,11 @@ class Objects():
         else:
             dict_.update({name:Objects.val(obj,name)})
     
-    def get_obj_id(self):
-        return([value['Name'] for value in self.VarsObjs])
+    def get_ids(self):
+        if type(self.VarsObjs) == dict:
+            return [f"{_['Ident']}" for _ in self.VarsObjs.values()]
+        else:
+            return([f"{value['Ident']}" for value in self.VarsObjs])
     
     def get_first_obj(self):
         if len(self.VarsObjs) == 1:
@@ -63,11 +65,11 @@ class Objects():
 
     def set_dict_objs(self):
         with open(Objects.get_stnPath(), encoding='utf-8') as stn:
-            #stn = stn.read().split('create universal')
             for obj in stn.read().split('create universal'):
                 dictVarsObj = dict()
                 if self.typeObj in obj:
                     self.add_dict_vars_obj(dictVarsObj,obj, 'Name')
+                    self.add_dict_vars_obj(dictVarsObj,obj, 'Ident')
                     for var in self.varsObj:
                         self.add_dict_vars_obj(dictVarsObj,obj, var)
                     self.VarsObjs +=(dictVarsObj,)
@@ -75,8 +77,8 @@ class Objects():
 if __name__ == "__main__":
     if 'objects.xml' in argv[1]:
         os.environ.update({'pathObj':argv[1]})
-    testPath = argv[0][:argv[0].rfind('main')]+ 'test\\test_window_CPU.py'#::test_link_ups'
-    proc = subprocess.run(['pytest','-vv','-l','--tb=short', testPath], stdin = subprocess.PIPE,
-                         stdout = subprocess.PIPE, text= True)
+    testPath = argv[0][:argv[0].rfind('main')]+ 'test'
+    proc = subprocess.run(['pytest','--tb=short', testPath], stdin = subprocess.PIPE,
+                            stdout = subprocess.PIPE, text= True)
     print(proc.stdout)
     input('\nPress Enter for exit')

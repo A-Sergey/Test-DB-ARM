@@ -30,10 +30,15 @@ def test_link_ups_table():
     union = set(table_ups_list) - set(WindowUps.ups_objs())
     assert union == set(), out
 
+def test_absence_ups_in_window():
+    out = f"Отсутствуе ИБП в окне мониторинга"
+    union = set(WindowUps.ups_objs()) - set(all_ups)
+    assert union == set(), out
+
 def test_correct_param_snmp_ipu():
     out = f"Не верные параметры тэга ipu в station.snmp"
     assert (ups_xml.findall('ipu')[0].get('num') == '100' and
-            ups_xml.findall('ipu')[0].get('connections') == '1' and
+            ups_xml.findall('ipu')[0].get('connections') == '3' and
             ups_xml.findall('ipu')[0].get('cycle_delay') == '2000')
 
 @pytest.mark.parametrize('var', ups_xml.findall('connection'))
