@@ -43,8 +43,6 @@ user_mark = Input('SubType=Пользовательская_разметка\n',
                    'Coordinates','LeftUp','RightDown')
 time_table = Input('SubType=Таблица_времен\n','MainEbilockObject','Coordinates',
                     'Сосед',)
-                    
-absent_diag_contact = False if user_mark.VarsObjs else True
 
 def test_absence_old_realisation():
     out = f"Старая реализация команд на релейных входах"
@@ -57,7 +55,7 @@ def test_correct_name_with_linked(var):
     out = f"Не верная привязка контакта {var['Name']}"
     assert (var['Name'] == var['MainEbilockObject'] or var['Name']+'_' in var['MainEbilockObject']), out
 
-@pytest.mark.skipif(absent_diag_contact == True, reason='Absent diag contact')
+@pytest.mark.skipif(absent_diag_contact == False, reason='Absent diag contact')
 @pytest.mark.parametrize('var', contact.VarsObjs, ids=contact.get_ids())
 def test_correct_linked_table_alarm_button(var):
     out = f"{var['Name']} Необходимо проверить link alarm_button"

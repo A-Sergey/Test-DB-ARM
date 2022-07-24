@@ -2,6 +2,11 @@ import pytest,os
 from TEST_BD_ARM.main import Objects
 
 class Point(Objects):
+    def __init__(self,typeObj, *varsObj):
+        super().__init__(typeObj, *varsObj)
+        self.static_sections= dict((key['Ident'],key['Декоративный']) for key in 
+                                    Objects('SubType=Секция\n','Декоративный').VarsObjs)
+
     def add_dict_vars_obj(self,dict_,obj, name):
         if name == 'Контроллер':
             dict_.update({name:Point.val(obj,name,'(').replace('Стр.','')})
@@ -12,9 +17,9 @@ class Point(Objects):
         return([f'Point {dic["Name"]}' for dic in self.VarsObjs if dic['Name'] != None])
 
 points = Point('SubType=Стрелка\n','MainEbilockObject','Контроллер','Номер_платы_МУЭП',
-                'Макет',)
+                'Макет','Статический')
 pointSwitches = Point('SubType=Стрелочный_коммутатор','MainEbilockObject','OC',
-                'Спаренная_стрелка',)
+                        'Спаренная_стрелка',)
 
 @pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_ids())
 def test_correct_linked_controller(var):
@@ -43,9 +48,9 @@ def test_availability_of_all_point_switches(var):
     for switch in pointSwitches.VarsObjs:
         if '/' in switch['Name']: 
             if var['Name'] in switch['Name'].split('/'): count = 1
-        else:
-            if switch['MainEbilockObject'] == var['MainEbilockObject']: count = 1
-    assert count == 1, out
+        elif switch['MainEbilockObject'] == var['MainEbilockObject']: count = 1
+    if points.static_sections[var['Статический']] == 0:
+        assert count == 1, out
 
 @pytest.mark.parametrize('var', points.VarsObjs, ids=points.get_ids())
 def test_linked_to_maket(var):

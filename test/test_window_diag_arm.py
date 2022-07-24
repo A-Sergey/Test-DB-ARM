@@ -139,7 +139,7 @@ def test_correct_linked_conn_between_cpu_servers(var):
 def test_correct_linked_conn_between_client_servers_from(var):
     for obj in conn_between_client_servers.get_sorted_by_X('From',var):
         assert obj['From'] == var, f"Не правильная привязка From {var}"
-        assert '-1' == obj['MainEbilockObject'] and obj['From'].upper() == obj['Name'].upper(), f"Проверь имя или MainEbilockObject {var}"
+        assert '-1' == obj['MainEbilockObject'] and obj['From'].upper() == obj['Name'].upper(), f"Проверь имя или MainEbilockObject ID={obj['Ident']}"
 
 @pytest.mark.parametrize('var', clients)
 def test_correct_linked_conn_between_client_servers_ServerNum(var):

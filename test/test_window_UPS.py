@@ -42,18 +42,37 @@ def test_correct_param_snmp_ipu():
             ups_xml.findall('ipu')[0].get('cycle_delay') == '2000')
 
 @pytest.mark.parametrize('var', ups_xml.findall('connection'))
-def test_correct_param_snmp_connection(var):
-    out = f"Не верные параметры тэга connection {var.findall('obj')[0].get('name')} в station.snmp"
+def test_correct_update_period_snmp_connection(var):
+    out = f"Не верные параметры тэга update_period {var.findall('obj')[0].get('name')} в station.snmp"
     if 'ИБП' in var.findall('obj')[0].get('type'):
-        assert (var.get('update_period') == '5000' and
-                var.get('max_vars_in_pdu') == '5' and
-                var.get('num_attempts') == '2' and
-                var.get('protocol') == 'v2c'), out
+        assert var.get('update_period') == '5000', out
     if 'MOPT652019M' in var.findall('obj')[0].get('type'):
-        assert (var.get('update_period') == '10000' and
-                var.get('max_vars_in_pdu') == '5' and
-                var.get('num_attempts') == '2'), out
+        assert var.get('update_period') == '10000', out
     if 'Nport' in var.findall('obj')[0].get('type'):
-        assert (var.get('update_period') == '5000' and
-                var.get('max_vars_in_pdu') == '5' and
-                var.get('num_attempts') == '2'), out
+        assert var.get('update_period') == '5000', out
+
+@pytest.mark.parametrize('var', ups_xml.findall('connection'))
+def test_correct_max_vars_in_pdu_snmp_connection(var):
+    out = f"Не верные параметры тэга max_vars_in_pdu {var.findall('obj')[0].get('name')} в station.snmp"
+    if 'ИБП' in var.findall('obj')[0].get('type'):
+        assert var.get('max_vars_in_pdu') == '5', out
+    if 'MOPT652019M' in var.findall('obj')[0].get('type'):
+        assert var.get('max_vars_in_pdu') == '5', out
+    if 'Nport' in var.findall('obj')[0].get('type'):
+        assert var.get('max_vars_in_pdu') == '5', out
+
+@pytest.mark.parametrize('var', ups_xml.findall('connection'))
+def test_correct_param_num_attempts_connection(var):
+    out = f"Не верные параметры тэга num_attempts {var.findall('obj')[0].get('name')} в station.snmp"
+    if 'ИБП' in var.findall('obj')[0].get('type'):
+        assert var.get('num_attempts') == '2', out
+    if 'MOPT652019M' in var.findall('obj')[0].get('type'):
+        assert var.get('num_attempts') == '2', out
+    if 'Nport' in var.findall('obj')[0].get('type'):
+        assert var.get('num_attempts') == '2', out
+                
+@pytest.mark.parametrize('var', ups_xml.findall('connection'))
+def test_correct_param_protocol_connection(var):
+    out = f"Не верные параметры тэга protocol {var.findall('obj')[0].get('name')} в station.snmp"
+    if 'ИБП' in var.findall('obj')[0].get('type'):
+        assert var.get('protocol') == 'v2c', out
